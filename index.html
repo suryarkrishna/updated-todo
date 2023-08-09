@@ -12,7 +12,6 @@
         body {
             margin: 0;
             background-color: lightblue;
-
         }
 
         #container {
@@ -22,15 +21,13 @@
 
         .item {
             background-color: lightcoral;
-            margin: 0px 16px 16px 0px;
-            padding: 32px;
+            padding: 10px 32px;
             font-size: 24px;
             text-align: center;
-            height: max-content;
         }
+
         #add-item {
             height: 600px;
-
         }
 
         #add-item input {
@@ -47,7 +44,7 @@
             margin-left: 20px;
             align-items: flex-start;
             align-content: flex-start;
-            
+
         }
 
         .list-item {
@@ -71,11 +68,10 @@
             height: 30px;
             width: 400px;
             max-width: 100%;
-
         }
+
         input[type=submit] {
             margin-top: 2px;
-
         }
 
         button[id*='btn'] {
@@ -99,23 +95,37 @@
             padding-top: 3px;
         }
 
-        @media screen and (max-width: 768px) {
-            #list {
-            justify-content: center;
+        #total {
+            text-align: right;
+            padding-top: 5px;
+            font-size: 15px;
             margin: 0;
-            padding: 0;
         }
-
+        #item-count {
+            background-color: rgb(244, 252, 250);
+            padding: 3px;
+            border: 2px solid rgb(247, 242, 242);
+            box-shadow: 2px 2px rgb(140, 172, 180);
             
         }
 
+        @media screen and (max-width: 768px) {
+            #list {
+                justify-content: center;
+                margin: 0;
+                padding: 0;
+            }
 
+        }
     </style>
 </head>
 
 <body>
     <div id="container">
-        <div class="item">To do list using <em>Jquery</em></div>
+        <div class="item">To do list using <em>Jquery</em>
+            <p id="total">TOTAL ITEMS: <span id="item-count">0</span></p>
+        </div>
+        
         <section id="add-item">
             <div id="fix-head">
                 <input type="text" id="input-text" placeholder="Enter the task" />
@@ -128,27 +138,24 @@
             </div>
             <div id="list-container">
                 <ul id="list">
-
+                    <!--list gets apppended here-->
                 </ul>
             </div>
         </section>
     </div>
     <script>
         $(document).ready(function () {
-
             //calling a http get request to fill the to do list
             function getToDoList() {
                 var http = new XMLHttpRequest();
                 http.onreadystatechange = function () {
                     if (this.readyState === 4) {
-                        console.log('response received');
                         if (this.status === 200) {
+                            console.log('200: received request')
                             var response = JSON.parse(this.responseText);
                             for (i = 0; i < response.length; i++) {
                                 dynamicToDo(response[i].id, response[i].title);
-                                console.log('hi')
                             }
-                            console.log(response);
                         } else {
                             console.log('error');
                         }
@@ -158,7 +165,6 @@
                 http.send();
             }
             getToDoList();
-
             //create to do dynamically using http request
             function dynamicToDo(id, title) {
                 this.title = title;
@@ -168,7 +174,6 @@
                 } else {
                     var newListElement = $("<li>");
                     newListElement.addClass("list-item");
-                    console.log(this.title)
                     newListElement.append(document.createTextNode(this.title));
                     list.append(newListElement);
                     var delBtn = $("<button>");
@@ -181,22 +186,14 @@
                     newListElement.append(delBtn)
                     text.val('');
                     count = count + 1;
-
-                    //delete single item
-                    var delBtn = $('.del-btn');
-                    delBtn.click(function () {
-                        $(this).closest('li').remove();
-                    })
+                    updateCount();
                 }
             }
-
             //To do list
-
             var list = $("#list");
             var btnAdd = $("#btn-add");
             var text = $("#input-text");
             var count = 1;
-
             //add item
             function addItem(e) {
                 var textValue = text.val();
@@ -217,14 +214,8 @@
                     newListElement.append(delBtn)
                     text.val('');
                     count = count + 1;
-
-                    //delete single item
-                    var delBtn = $('.del-btn');
-                    delBtn.click(function () {
-                        $(this).closest('li').remove();
-                    })
+                    updateCount();
                 }
-
             }
             text.keyup(function (e) {
                 if (e.keyCode === 13) {
@@ -232,9 +223,7 @@
                 }
             });
             // ADD item code
-
             btnAdd.click(addItem);
-
             //update first item
             var btnUpdate = $("#btn-update");
             btnUpdate.click(function () {
@@ -252,7 +241,6 @@
                     text.val("");
                 }
             });
-
             //remove first item
             var btnRemove = $("#btn-remove");
             btnRemove.click(function (e) {
@@ -260,15 +248,28 @@
                     alert("Add an item");
                 } else {
                     list.find(':first').remove();
+                    updateCount();
                 }
             });
 
+            //delete single item
+            $("#list").on("click", ".del-btn", function () {
+                $(this).closest('li').remove();
+                updateCount();
+            });
             //deleting all items
             var deleteAll = $('#btn-delete-all');
-            deleteAll.click(function(){
+            deleteAll.click(function () {
                 list.empty();
+                updateCount();
             })
+            //updating total items
+            function updateCount() {
+                listCount=$('#list li').length;
+                $("#item-count").text(listCount);
+            }
         })
+
     </script>
 </body>
 
