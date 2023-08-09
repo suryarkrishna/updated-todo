@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,28 +12,23 @@
             margin: 0;
             background-color: lightblue;
         }
-
         #container {
             box-sizing: border-box;
             padding: 32px;
         }
-
         .item {
             background-color: lightcoral;
             padding: 10px 32px;
             font-size: 24px;
             text-align: center;
         }
-
         #add-item {
             height: 600px;
         }
-
         #add-item input {
             height: 30px;
             padding: 0px 3px;
         }
-
         #list {
             display: flex;
             flex-flow: row wrap;
@@ -44,9 +38,7 @@
             margin-left: 20px;
             align-items: flex-start;
             align-content: flex-start;
-
         }
-
         .list-item {
             background-color: white;
             list-style-type: none;
@@ -56,33 +48,35 @@
             max-width: 90%;
             border-radius: 5px;
             display: flex;
-            flex-flow: row wrap;
-            justify-content: space-between;
+            flex-flow: column wrap;
             word-break: break-all;
             text-overflow: ellipsis;
-            justify-content: center;
-            padding: 0px 16px;
+            padding: 10px 16px 0px 16px;
+            box-shadow: 2px 2px grey;
         }
-
         #input-text {
             height: 30px;
             width: 400px;
             max-width: 100%;
         }
-
         input[type=submit] {
             margin-top: 2px;
         }
-
         button[id*='btn'] {
             margin: 10px 10px;
             background-color: rgb(252, 142, 108);
             font-size: large;
             word-break: keep-all;
-            align-self: center;
-            width: 100%;
+            width: 10%;
+            border: none;
+            box-shadow: 0px 2px grey;
+            border-radius: 15%;
+            cursor: pointer;
         }
-
+        button[id*='btn']:hover {
+            background-color: red;
+            font-size: larger;
+        }
         #fix-head {
             background-color: rgb(20, 26, 24);
             display: flex;
@@ -90,11 +84,9 @@
             align-items: center;
             padding: 20px;
         }
-
         #fix-head>* {
             padding-top: 3px;
         }
-
         #total {
             text-align: right;
             padding-top: 5px;
@@ -106,33 +98,57 @@
             padding: 3px;
             border: 2px solid rgb(247, 242, 242);
             box-shadow: 2px 2px rgb(140, 172, 180);
-            
+            border-radius: 15%;
         }
-
         @media screen and (max-width: 768px) {
             #list {
                 justify-content: center;
                 margin: 0;
                 padding: 0;
             }
-
+        }
+        .creation-time {
+            font-size: 12px;
+            font-style: italic;
+            color: grey;
+            transition: 2s ease-in-out;
+        }
+        /*edit css*/
+        .edit-button {
+            background-color: lightgreen;
+            color: black;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 10px 10px;
+            font-size: large;
+            word-break: keep-all;
+            width: 10%;
+            border: none;
+            box-shadow: 0px 2px grey;
+            border-radius: 15%;
+            cursor: pointer;
+        }
+        .edit-button:hover {
+            background-color: green;
+            font-size: larger;
+        }
+        .edit-input {
+            width: 100%;
+            padding: 5px;
         }
     </style>
 </head>
-
 <body>
     <div id="container">
-        <div class="item">To do list using <em>Jquery</em>
+        <div class="item">Updated To do list using <em>Jquery</em>
             <p id="total">TOTAL ITEMS: <span id="item-count">0</span></p>
         </div>
-        
         <section id="add-item">
             <div id="fix-head">
                 <input type="text" id="input-text" placeholder="Enter the task" />
                 <div>
                     <input id="btn-add" type="submit" value="Add item" />
-                    <input id="btn-update" type="submit" value="Update First item" />
-                    <input id="btn-remove" type="submit" value="Remove First item" />
                     <input id="btn-delete-all" type="submit" value="Delete All items" />
                 </div>
             </div>
@@ -173,8 +189,24 @@
                     alert("enter a valid item");
                 } else {
                     var newListElement = $("<li>");
+                    var listText = $('<div>');
+                    listText.addClass('list-text');
                     newListElement.addClass("list-item");
-                    newListElement.append(document.createTextNode(this.title));
+                    //store the creation time as a data attribute
+                    var creationTime = new Date().getTime();
+                    newListElement.attr('data-creation-time', creationTime);
+                    var timeDelDiv = $('<div>');
+                    timeDelDiv.addClass('time-del');
+                    timeDelDiv.css({
+                        "display": "flex",
+                        "justify-content": "flex-end",
+                        "align-items": "center"
+                    });
+                    var creationTimeSpan = $("<span>");
+                    creationTimeSpan.addClass("creation-time");
+                    listText.append(document.createTextNode(this.title));
+                    newListElement.append(listText);
+                    timeDelDiv.append(creationTimeSpan);
                     list.append(newListElement);
                     var delBtn = $("<button>");
                     delBtn.attr('id', "btn-" + this.id);
@@ -182,8 +214,15 @@
                     var delIcon = $('<i>');
                     delIcon.addClass('fa fa-trash');
                     delBtn.append(delIcon);
-                    list.first().append(delBtn);
-                    newListElement.append(delBtn)
+                    //edit
+                    var editBtn = $("<button>");
+                    editBtn.attr('id', "edit-" + this.id);
+                    editBtn.addClass('edit-button');
+                    var editIcon = $('<i>');
+                    editIcon.addClass('fa fa-edit');
+                    editBtn.append(editIcon);
+                    timeDelDiv.append(editBtn).append(delBtn)
+                    newListElement.append(timeDelDiv);
                     text.val('');
                     count = count + 1;
                     updateCount();
@@ -201,8 +240,24 @@
                     alert("enter a valid item");
                 } else {
                     var newListElement = $("<li>");
+                    var listText = $('<div>');
+                    listText.addClass('list-text');
                     newListElement.addClass("list-item");
-                    newListElement.append(document.createTextNode(textValue + " "));
+                    // Store the creation time as a data attribute
+                    var creationTime = new Date().getTime();
+                    newListElement.attr('data-creation-time', creationTime);
+                    var timeDelDiv = $('<div>');
+                    timeDelDiv.addClass('time-del');
+                    timeDelDiv.css({
+                        "display": "flex",
+                        "justify-content": "flex-end",
+                        "align-items": "center"
+                    });
+                    var creationTimeSpan = $("<span>");
+                    creationTimeSpan.addClass("creation-time");
+                    listText.append(document.createTextNode(textValue));
+                    newListElement.append(listText);
+                    timeDelDiv.append(creationTimeSpan);
                     list.append(newListElement);
                     var delBtn = $("<button>");
                     delBtn.attr('id', "btn-" + count);
@@ -210,8 +265,15 @@
                     var delIcon = $('<i>');
                     delIcon.addClass('fa fa-trash');
                     delBtn.append(delIcon);
-                    list.first().append(delBtn);
-                    newListElement.append(delBtn)
+                    //edit
+                    var editBtn = $("<button>");
+                    editBtn.attr('id', "edit-" + count);
+                    editBtn.addClass('edit-button');
+                    var editIcon = $('<i>');
+                    editIcon.addClass('fa fa-edit');
+                    editBtn.append(editIcon);
+                    timeDelDiv.append(editBtn).append(delBtn)
+                    newListElement.append(timeDelDiv);
                     text.val('');
                     count = count + 1;
                     updateCount();
@@ -224,34 +286,6 @@
             });
             // ADD item code
             btnAdd.click(addItem);
-            //update first item
-            var btnUpdate = $("#btn-update");
-            btnUpdate.click(function () {
-                if (text.val() == "") {
-                    alert("Enter updated value");
-                } else {
-                    $("#list").find(':first').text(text.val());
-                    var delBtn = $("<button>");
-                    delBtn.attr('id', "btn-1");//since it updated only first item
-                    delBtn.addClass('del-btn');
-                    var delIcon = $('<i>');
-                    delIcon.addClass('fa fa-trash');
-                    delBtn.append(delIcon);
-                    list.find(':first').append(delBtn);
-                    text.val("");
-                }
-            });
-            //remove first item
-            var btnRemove = $("#btn-remove");
-            btnRemove.click(function (e) {
-                if (list.length == 0) {
-                    alert("Add an item");
-                } else {
-                    list.find(':first').remove();
-                    updateCount();
-                }
-            });
-
             //delete single item
             $("#list").on("click", ".del-btn", function () {
                 $(this).closest('li').remove();
@@ -265,12 +299,59 @@
             })
             //updating total items
             function updateCount() {
-                listCount=$('#list li').length;
+                listCount = $('#list li').length;
                 $("#item-count").text(listCount);
             }
+            //function to add the time at which the task is created
+            setInterval(function () {
+                var now = new Date().getTime();
+                $(".list-item").each(function () {
+                    var creationTime = parseInt($(this).attr('data-creation-time'));
+                    var timeDifference = now - creationTime;
+                    var timeString = "";
+                    if (timeDifference < 60 * 1000) {
+                        timeString = "less than a minute ago";
+                    } else if (timeDifference < 60 * 60 * 1000) {
+                        var minutes = Math.floor(timeDifference / (60 * 1000));
+                        timeString = minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+                    } else if (timeDifference < 24 * 60 * 60 * 1000) {
+                        var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+                        timeString = hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+                    } else {
+                        var formattedTime = new Date(creationTime).toLocaleString();
+                        timeString = formattedTime;
+                    }
+                    $(this).find(".creation-time").text(timeString);
+                });
+            }, 1000);
+            // Function to save edited text
+            function saveEditedText(element) {
+                const newText = element.text().trim();
+                element.attr("contenteditable", "false"); // Disable editing
+                if (newText !== "") {
+                    element.text(newText);
+                } else {
+                    element.closest(".list-item").remove(); // Remove if empty after editing
+                    updateCount();
+                }
+            }
+            // Enable editing when clicking the "Edit" button
+            list.on("click", ".edit-button", function () {
+                const listItem = $(this).parents(".list-item");
+                listItem.find(".list-text").attr("contenteditable", "true").focus();
+            });
+            // Save edited text on focus out
+            list.on("focusout", ".list-text", function () {
+                saveEditedText($(this));
+            });
+            // Save edited text on Enter key press
+            list.on("keydown", ".list-text", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault(); // Prevent newline
+                    saveEditedText($(this));
+                }
+            });
         })
-
     </script>
 </body>
-
 </html>
